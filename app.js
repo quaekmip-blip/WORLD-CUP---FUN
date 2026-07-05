@@ -15,12 +15,13 @@ app.use(express.json());
 
 // 1. User Betting Submission Page
 app.get('/', (req, res) => {
-    const matches = [
-        "Argentina vs France",
-        "Brazil vs Germany",
-        "England vs Italy",
-        "Spain vs Morocco"
+       const matches = [
+        "Portugal vs Spain",
+        "Argentina vs Egypt",
+        "United States vs Belgium",
+        "Switzerland vs Colombia"
     ];
+
     res.render('bet', { matches, success: req.query.success });
 });
 
