@@ -1,14 +1,12 @@
 const express = require('express');
 const path = require('path');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
-const adapter = new FileSync('database.json');
 
-const db = low(adapter);
-
-db.defaults({ predictions: [] }).write();
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
@@ -24,31 +22,40 @@ app.get('/', (req, res) => {
     res.render('bet', { matches, success: req.query.success });
 });
 
-app.post('/submit-bet', (req, res) => {
+app.post('/submit-bet', async (req, res) => {
     const { username, match, scoreA, scoreB } = req.body;
     
     if (username && match && scoreA !== undefined && scoreB !== undefined) {
-        db.get('predictions')
-          .push({ 
+        await supabase
+          .from('predictions')
+          .insert([
+            { 
               name: username.trim(), 
               game: match, 
               score: `${scoreA} - ${scoreB}`,
               timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          })
-          .write();
+            }
+          ]);
         return res.redirect('/?success=true');
     }
     res.redirect('/');
 });
 
-app.get('/admin-dashboard', (req, res) => {
-    const allBets = db.get('predictions').value();
-    res.render('admin', { bets: allBets });
-});
+// UPGRADED VIEW: Intercepts secret link triggers immediately without passwords
+app.get('/admin-dashboard', async (req, res) => {
+    // 🔑 THE SECRET URL PARAMETER TRICK
+    // If you visit /admin-dashboard?clear=yes, it clears the DB instantly
+    if (req.query.clear === 'yes') {
+        await supabase.from('predictions').delete().neq('id', 0);
+        return res.redirect('/admin-dashboard?clearSuccess=true');
+    }
 
-app.post('/admin/clear-data', (req, res) => {
-    db.set('predictions', []).write();
-    res.redirect('/admin-dashboard');
+    const { data: allBets } = await supabase
+        .from('predictions')
+        .select('*')
+        .order('id', { ascending: false });
+
+    res.render('admin', { bets: allBets || [] });
 });
 
 const PORT = 3000;
