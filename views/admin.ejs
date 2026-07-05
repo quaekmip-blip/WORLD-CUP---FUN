@@ -36,12 +36,17 @@
         }
         .nav-row {
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            gap: 12px;
             width: 100%;
         }
+        @media(min-width: 480px) {
+            .nav-row {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+        }
         .btn {
-            flex: 1;
-            text-align: center;
             padding: 12px;
             border-radius: 10px;
             font-size: 14px;
@@ -49,16 +54,62 @@
             text-decoration: none;
             border: none;
             cursor: pointer;
+            text-align: center;
         }
         .btn-secondary {
             background-color: #1e293b;
             color: #f8fafc;
             border: 1px solid #334155;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clear-form {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+        }
+        .password-input {
+            flex: 1;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 0 12px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            height: 46px;
+        }
+        .password-input:focus {
+            border-color: #f87171;
         }
         .btn-danger {
-            background-color: #1e293b;
+            background-color: rgba(239, 68, 68, 0.2);
             color: #f87171;
-            border: 1px solid rgba(248, 113, 113, 0.3);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            height: 46px;
+        }
+        .btn-danger:active {
+            background-color: rgba(239, 68, 68, 0.4);
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #a7f3d0;
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
         .list-container {
             display: flex;
@@ -117,10 +168,17 @@
             <div>
                 <h1>Prediction Logs</h1>
             </div>
+
+            <!-- Dynamic Feedback Alerts Placeholders -->
+            <div id="feedback-container"></div>
+
             <div class="nav-row">
                 <a href="/" class="btn btn-secondary">← Form Page</a>
-                <form action="/admin/clear-data" method="POST" onsubmit="return confirm('Clear all data logs?');" style="flex: 1; display: flex;">
-                    <button type="submit" class="btn btn-danger" style="width: 100%;">Clear All</button>
+                
+                <!-- Password Protection Form Block Component -->
+                <form action="/admin/clear-data" method="POST" class="clear-form" onsubmit="return confirm('Are you sure you want to clear all data logs?');">
+                    <input type="password" name="adminPassword" required placeholder="Admin Password..." class="password-input">
+                    <button type="submit" class="btn btn-danger">Clear All</button>
                 </form>
             </div>
         </div>
@@ -144,6 +202,18 @@
             <% } %>
         </div>
     </div>
+
+    <script>
+        // Checks URL flags to draw interactive notifications
+        const urlParams = new URLSearchParams(window.location.search);
+        const feedbackContainer = document.getElementById('feedback-container');
+        
+        if (urlParams.get('error') === 'invalid_password') {
+            feedbackContainer.innerHTML = '<div class="alert alert-danger">❌ Incorrect admin password. Access denied.</div>';
+        } else if (urlParams.get('clearSuccess') === 'true') {
+            feedbackContainer.innerHTML = '<div class="alert alert-success">🧹 Database logs successfully cleared.</div>';
+        }
+    </script>
 
 </body>
 </html>
