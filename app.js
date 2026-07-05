@@ -12,16 +12,31 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get('/', (req, res) => {
+// COMBINED MAIN LINK: Loads both the entry form and live database tracking log list together
+app.get('/', async (req, res) => {
     const matches = [
         "Portugal vs Spain",
         "Argentina vs France",
         "United States vs Belgium",
         "Switzerland vs Colombia"
     ];
-    res.render('bet', { matches, success: req.query.success });
+
+    // Fetch entries to show at the bottom of the same page view
+    const { data: allBets } = await supabase
+        .from('predictions')
+        .select('*')
+        .order('id', { ascending: false });
+
+    res.render('bet', { 
+        matches, 
+        bets: allBets || [],
+        success: req.query.success,
+        clearSuccess: req.query.clearSuccess,
+        error: req.query.error
+    });
 });
 
+// SUBMIT ENTRY ROADWAY
 app.post('/submit-bet', async (req, res) => {
     const { username, match, scoreA, scoreB } = req.body;
     
@@ -41,31 +56,16 @@ app.post('/submit-bet', async (req, res) => {
     res.redirect('/');
 });
 
-// ADMIN VIEW DASHBOARD
-app.get('/admin-dashboard', async (req, res) => {
-    const { data: allBets } = await supabase
-        .from('predictions')
-        .select('*')
-        .order('id', { ascending: false });
-
-    res.render('admin', { bets: allBets || [] });
-});
-
-// 🔒 SECURE MASTER WIPE PATHWAY: Checked safely via POST
+// SECURE CLEAR ALL ACTION
 app.post('/admin/clear-data', async (req, res) => {
     const adminPassword = req.body.adminPassword;
-    const SECRET_PASSWORD = "admin123"; // 👈 YOUR PASSWORD
+    const SECRET_PASSWORD = "admin123"; 
 
     if (adminPassword && adminPassword === SECRET_PASSWORD) {
         await supabase.from('predictions').delete().neq('id', 0);
-        return res.redirect('/admin-dashboard?clearSuccess=true');
+        return res.redirect('/?clearSuccess=true');
     }
-    res.redirect('/admin-dashboard?error=invalid_password');
-});
-
-// HELPER REDIRECT: Bounces users back safely if they mistakenly visit the path manually
-app.get('/admin/clear-data', (req, res) => {
-    res.redirect('/admin-dashboard');
+    res.redirect('/?error=invalid_password');
 });
 
 const PORT = 3000;
