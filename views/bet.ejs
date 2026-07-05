@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>World Cup Predictor</title>
+    <title>World Cup Predictor App</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,34 +12,44 @@
         body {
             background-color: #0f172a;
             color: #f8fafc;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
         }
         .app-container {
             width: 100%;
-            max-width: 440px;
+            max-width: 460px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         .alert {
-            background-color: #065f46;
-            color: #a7f3d0;
-            padding: 16px;
+            padding: 14px;
             border-radius: 12px;
             text-align: center;
-            margin-bottom: 16px;
             font-size: 14px;
             font-weight: 600;
+        }
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #a7f3d0;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
         .card {
             background-color: #1e293b;
             border-radius: 20px;
             padding: 24px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid #334155;
         }
         .header h2 {
             margin: 0;
@@ -57,7 +67,7 @@
         }
         label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: #94a3b8;
             margin-bottom: 8px;
@@ -74,23 +84,6 @@
             font-size: 16px;
             font-weight: 500;
             outline: none;
-            transition: border-color 0.2s;
-            appearance: none;
-        }
-        input[type="text"]:focus, select:focus {
-            border-color: #10b981;
-        }
-        .select-wrapper {
-            position: relative;
-        }
-        .select-wrapper::after {
-            content: "▼";
-            font-size: 10px;
-            color: #64748b;
-            position: absolute;
-            right: 16px;
-            top: 18px;
-            pointer-events: none;
         }
         .scoreboard {
             display: flex;
@@ -106,13 +99,6 @@
             flex-direction: column;
             align-items: center;
         }
-        .score-label {
-            font-size: 11px;
-            color: #64748b;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
         input[type="number"] {
             width: 72px;
             height: 54px;
@@ -125,17 +111,13 @@
             font-weight: 700;
             outline: none;
         }
-        input[type="number"]:focus {
-            border-color: #10b981;
-        }
         .divider {
             font-size: 20px;
             color: #475569;
             font-weight: 700;
-            align-self: flex-end;
-            margin-bottom: 12px;
+            margin-bottom: 4px;
         }
-        button {
+        .btn-submit {
             width: 100%;
             background-color: #10b981;
             color: #0f172a;
@@ -145,21 +127,96 @@
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            margin-top: 8px;
             transition: background-color 0.2s;
         }
-        button:active {
-            background-color: #059669;
+        
+        /* LEDGER SUMMARY STYLING SECTION */
+        .section-title {
+            margin: 10px 0 0 0;
+            font-size: 18px;
+            font-weight: 800;
+            color: #e2e8f0;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+        }
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+        .entry-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .player-info { display: flex; flex-direction: column; gap: 4px; }
+        .player-name { font-weight: 700; font-size: 15px; color: #10b981; }
+        .match-name { font-size: 13px; color: #cbd5e1; }
+        .timestamp { font-size: 11px; color: #64748b; }
+        .score-side {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: monospace;
+        }
+        .empty-state { text-align: center; color: #64748b; padding: 24px 0; font-size: 13px; }
+        
+        /* SECURE MANAGEMENT CONTROL */
+        .admin-box {
+            margin-top: 16px;
+            border-top: 1px dashed #334155;
+            padding-top: 16px;
+        }
+        .clear-form { display: flex; gap: 8px; }
+        .password-input {
+            flex: 1;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 0 12px;
+            color: #ffffff;
+            font-size: 13px;
+            outline: none;
+            height: 42px;
+        }
+        .btn-danger {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 10px;
+            padding: 0 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            height: 42px;
         }
     </style>
 </head>
 <body>
 
     <div class="app-container">
+        
+        <!-- Status Feedback Panels -->
         <% if (success) { %>
-            <div class="alert">Prediction saved!</div>
+            <div class="alert alert-success">🚀 Prediction submitted successfully!</div>
+        <% } %>
+        <% if (clearSuccess) { %>
+            <div class="alert alert-success">🧹 Database logs successfully cleared.</div>
+        <% } %>
+        <% if (error === 'invalid_password') { %>
+            <div class="alert alert-danger">❌ Incorrect admin password. Access denied.</div>
         <% } %>
 
+        <!-- SECTION 1: Prediction Entry Card Container -->
         <div class="card">
             <div class="header">
                 <h2>World Cup Pool</h2>
@@ -174,33 +231,62 @@
 
                 <div class="form-group">
                     <label>Matchup</label>
-                    <div class="select-wrapper">
-                        <select name="match">
-                            <% matches.forEach(match => { %>
-                                <option value="<%= match %>"><%= match %></option>
-                            <% }) %>
-                        </select>
-                    </div>
+                    <select name="match">
+                        <% matches.forEach(match => { %>
+                            <option value="<%= match %>"><%= match %></option>
+                        <% }) %>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label>Predicted Score</label>
                     <div class="scoreboard">
                         <div class="score-input-group">
-                            <span class="score-label">Team A</span>
                             <input type="number" name="scoreA" min="0" required value="0">
                         </div>
                         <div class="divider">:</div>
                         <div class="score-input-group">
-                            <span class="score-label">Team B</span>
                             <input type="number" name="scoreB" min="0" required value="0">
                         </div>
                     </div>
                 </div>
 
-                <button type="submit">Submit Score</button>
+                <button type="submit" class="btn-submit">Submit Score</button>
             </form>
         </div>
+
+        <!-- SECTION 2: Live Leaderboard Outcomes Dashboard -->
+        <div class="card">
+            <h3 class="section-title">Live Standings Logs</h3>
+            
+            <div class="list-container">
+                <% if (bets.length === 0) { %>
+                    <div class="empty-state">No score logs found yet. Be the first!</div>
+                <% } else { %>
+                    <% bets.forEach(bet => { %>
+                        <div class="entry-card">
+                            <div class="player-info">
+                                <span class="player-name"><%= bet.name %></span>
+                                <span class="match-name"><%= bet.game %></span>
+                                <span class="timestamp">Logged at <%= bet.timestamp %></span>
+                            </div>
+                            <div class="score-side">
+                                <%= bet.score %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <!-- SECTION 3: Integrated Password Clearance Panel -->
+            <div class="admin-box">
+                <form action="/admin/clear-data" method="POST" class="clear-form" onsubmit="return confirm('Clear ALL data logs?');">
+                    <input type="password" name="adminPassword" required placeholder="Admin Password..." class="password-input">
+                    <button type="submit" class="btn-danger">Clear All</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 
 </body>
