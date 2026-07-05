@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediction Dashboard</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
             background-color: #0f172a;
             color: #f8fafc;
@@ -17,10 +15,7 @@
             display: flex;
             justify-content: center;
         }
-        .container {
-            width: 100%;
-            max-width: 600px;
-        }
+        .container { width: 100%; max-width: 600px; }
         .header {
             display: flex;
             flex-direction: column;
@@ -29,19 +24,12 @@
             border-bottom: 1px solid #334155;
             padding-bottom: 16px;
         }
-        h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 800;
-        }
+        h1 { margin: 0; font-size: 24px; font-weight: 800; }
         .nav-row {
             display: flex;
-            gap: 8px;
             width: 100%;
         }
         .btn {
-            flex: 1;
-            text-align: center;
             padding: 12px;
             border-radius: 10px;
             font-size: 14px;
@@ -49,22 +37,33 @@
             text-decoration: none;
             border: none;
             cursor: pointer;
+            text-align: center;
         }
         .btn-secondary {
             background-color: #1e293b;
             color: #f8fafc;
             border: 1px solid #334155;
-        }
-        .btn-danger {
-            background-color: #1e293b;
-            color: #f87171;
-            border: 1px solid rgba(248, 113, 113, 0.3);
-        }
-        .list-container {
+            height: 46px;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
+        .alert {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .alert-success { 
+            background-color: rgba(16, 185, 129, 0.15); 
+            color: #a7f3d0; 
+            border: 1px solid rgba(16, 185, 129, 0.3); 
+        }
+        .list-container { display: flex; flex-direction: column; gap: 12px; }
+        
         .entry-card {
             background-color: #1e293b;
             border: 1px solid #334155;
@@ -74,24 +73,11 @@
             justify-content: space-between;
             align-items: center;
         }
-        .info-side {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .player-name {
-            font-weight: 700;
-            font-size: 16px;
-            color: #10b981;
-        }
-        .match-name {
-            font-size: 14px;
-            color: #e2e8f0;
-        }
-        .timestamp {
-            font-size: 11px;
-            color: #64748b;
-        }
+        .info-side { display: flex; flex-direction: column; gap: 4px; }
+        .player-name { font-weight: 700; font-size: 16px; color: #10b981; }
+        .match-name { font-size: 14px; color: #e2e8f0; }
+        .timestamp { font-size: 11px; color: #64748b; }
+        
         .score-side {
             background-color: #0f172a;
             border: 1px solid #334155;
@@ -101,13 +87,9 @@
             font-weight: 800;
             letter-spacing: 1px;
             color: #ffffff;
+            font-family: monospace;
         }
-        .empty-state {
-            text-align: center;
-            color: #64748b;
-            padding: 48px 16px;
-            font-size: 14px;
-        }
+        .empty-state { text-align: center; color: #64748b; padding: 48px 16px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -117,11 +99,12 @@
             <div>
                 <h1>Prediction Logs</h1>
             </div>
+
+            <!-- Feedback Notification Banner -->
+            <div id="feedback-container"></div>
+
             <div class="nav-row">
                 <a href="/" class="btn btn-secondary">← Form Page</a>
-                <form action="/admin/clear-data" method="POST" onsubmit="return confirm('Clear all data logs?');" style="flex: 1; display: flex;">
-                    <button type="submit" class="btn btn-danger" style="width: 100%;">Clear All</button>
-                </form>
             </div>
         </div>
 
@@ -144,6 +127,15 @@
             <% } %>
         </div>
     </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const feedbackContainer = document.getElementById('feedback-container');
+        
+        if (urlParams.get('clearSuccess') === 'true') {
+            feedbackContainer.innerHTML = '<div class="alert alert-success">🧹 Database logs successfully cleared.</div>';
+        }
+    </script>
 
 </body>
 </html>
